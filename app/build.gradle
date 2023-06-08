@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.wechat_login'
+    namespace 'com.inbody2014.inbody'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.wechat_login"
+        applicationId "com.inbody2014.inbody"
         minSdk 24
         targetSdk 33
         versionCode 1

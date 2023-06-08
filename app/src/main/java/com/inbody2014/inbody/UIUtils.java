@@ -1,4 +1,4 @@
-package com.example.wechat_login;
+package com.inbody2014.inbody;
 
 import android.content.Context;
 import android.widget.Toast;

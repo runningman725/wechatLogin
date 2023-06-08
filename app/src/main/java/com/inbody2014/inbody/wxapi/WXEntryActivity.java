@@ -1,4 +1,4 @@
-package com.example.wechat_login.wxapi;
+package com.inbody2014.inbody.wxapi;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,21 +6,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
-import android.telecom.Call;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-
-import com.example.wechat_login.R;
-import com.example.wechat_login.UIUtils;
-import com.example.wechat_login.WxData;
+import com.inbody2014.inbody.R;
+import com.inbody2014.inbody.WxData;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import com.tencent.mm.opensdk.constants.ConstantsAPI;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
@@ -46,6 +41,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     private ImageView iv_head;
     private Handler handler;
     private OkHttpClient client;
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +68,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @Override
     public void onReq(BaseReq baseReq) {
         Log.e("-----", "onReq: " + baseReq);
-
         finish();
     }
 
@@ -85,7 +80,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         Log.e("-----", "errCode: " + baseResp.errCode);
         Log.e("-----", "getType: " + baseResp.getType());
         Log.e("-----", "checkArgs: " + baseResp.checkArgs());
-
 
         switch (baseResp.errCode) {
 
@@ -134,7 +128,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     String access_token = jsonObject.getString("access_token").toString().trim();
                     String refresh_token = jsonObject.getString("refresh_token").toString().trim();
                     confirmTokenValidation(access_token, openid);
-                    getUserMesg(access_token, openid);
+                    getUserMsg(access_token, openid);
                     refreshTokenMethod(refresh_token);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -167,20 +161,20 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
             @Override
             public void onResponse(Response response) throws IOException {
                 Log.e("------", "data: " + response);
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(response.body().string());
-                    String errcode = jsonObject.getString("errcode");
-                    String errmsg = jsonObject.getString("errmsg");
-                    if(errcode.equals("0")){
-                        //access_token 유효
-                    } else {
-                        //access_token 무효
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-
-                }
+//                JSONObject jsonObject = null;
+//                try {
+//                    jsonObject = new JSONObject(response.body().string());
+//                    String errcode = jsonObject.getString("errcode");
+//                    String errmsg = jsonObject.getString("errmsg");
+//                    if(errcode.equals("0")){
+//                        //access_token 유효
+//                    } else {
+//                        //access_token 무효
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//
+//                }
                 // finish();
             }
 
@@ -215,7 +209,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     String openid = jsonObject.getString("openid").toString().trim();   //openid는 유저의 유일한 표시
                     String access_token = jsonObject.getString("access_token").toString().trim();
                     String refresh_token = jsonObject.getString("refresh_token").toString().trim();
-                    getUserMesg(access_token, openid);
+                    getUserMsg(access_token, openid);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -232,7 +226,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
      * @param access_token
      * @param openid
      */
-    private void getUserMesg(final String access_token, final String openid) {
+    private void getUserMsg(final String access_token, final String openid) {
         String path = "https://api.weixin.qq.com/sns/userinfo?access_token="
                 + access_token
                 + "&openid="
@@ -254,13 +248,21 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 try {
                     jsonObject = new JSONObject(response.body().string());
                     String nickname = jsonObject.getString("nickname");
-                    int sex = Integer.parseInt(jsonObject.get("sex").toString());   //1은 남성,2는 여성
+                    int sex = Integer.parseInt(jsonObject.get("sex").toString());   //0은 남성
                     String headimgurl = jsonObject.getString("headimgurl");
                     String openid1 = jsonObject.getString("openid");
-                    tv_nickname.setText(nickname);
-                    Log.e("---", "sex:       " + sex);
-                    tv_sex.setText(sex);
-                    Log.e("---", "headimgurl:" + headimgurl);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_nickname.setText(nickname);
+                            Log.e("---", "sex:       " + sex);
+                            if (sex == 0) {
+                                tv_sex.setText("male");
+                            } else {
+                                tv_sex.setText("female");
+                            }
+                        }
+                    });
 
                     imageUrl(headimgurl);
                     //    startLoca(nickname, openid1);
@@ -277,7 +279,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
 
     //이미지 처리
-
     private void imageUrl(final String url) {
         new Thread(new Runnable() {
             @Override

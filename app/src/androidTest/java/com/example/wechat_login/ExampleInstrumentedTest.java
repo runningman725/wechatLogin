@@ -1,4 +1,4 @@
-package com.example.wechat_login;
+package com.inbody2014.inbody;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.example.wechat_login", appContext.getPackageName());
+        assertEquals("com.inbody2014.inbody", appContext.getPackageName());
     }
 }
